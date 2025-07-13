@@ -9,7 +9,7 @@ Example prompts:
   * "which album has more tracks, moving pictures by rush, or fly by night by rush"
   * "how many times do they say 'catch' in tom sawyer by rush"
 
-Requires Spotify API credentials to access tools. API info is pulled from a top level .env file.
+Requires Spotify and Genius API credentials to access tools. API info is pulled from a top level .env file.
 
 Example .env:
 
