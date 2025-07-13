@@ -1,13 +1,10 @@
 import os
-import dotenv
 import spotipy
 
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 from strands import tool
 
-dotenv.load_dotenv()
-
-def init_spotipy(auth=False) -> spotipy.Spotify:
+def _init_spotipy(auth=False) -> spotipy.Spotify:
     if auth:
         return spotipy.Spotify(
             auth_manager=SpotifyOAuth(
@@ -40,7 +37,7 @@ def spotify_track_search(query: str):
         search_results (list): List of search results in the format: 
         [{track_uri: str, track_name: str, album: str, artists: list[str]}]
     """
-    spot = init_spotipy()
+    spot = _init_spotipy()
     res = spot.search(query, limit=5, type="track")
     tracks = []
     for item in res["tracks"]["items"]:
@@ -68,7 +65,7 @@ def spotify_album_search(query: str):
         albums (list): List of album results in the format: 
         [{album_uri: str, album_name: str, total_tracks: int, artists: list[str]}]
     """
-    spot = init_spotipy()
+    spot = _init_spotipy()
     res = spot.search(query, limit=5, type="album")
     albums = []
     for item in res["albums"]["items"]:
@@ -96,7 +93,7 @@ def spotify_album_tracks(album_uri: str) -> list:
         tracks (list): List of tracks in the format: 
         [{track_uri: str, track_name: str, artists: list[str]}]
     """
-    spot = init_spotipy()
+    spot = _init_spotipy()
     res = spot.album_tracks(album_uri)
     tracks = []
     for item in res["items"]:
@@ -120,7 +117,7 @@ def spotify_play_track(track_uri: str) -> bool:
         True if the call succeeded, False if an error occured
     """
     try:
-        spot = init_spotipy(auth=True)
+        spot = _init_spotipy(auth=True)
         spot.start_playback(uris=[track_uri])
         return True
     except Exception as e:
