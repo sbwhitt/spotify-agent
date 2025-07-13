@@ -4,7 +4,8 @@ from tools import (
     spotify_track_search,
     spotify_album_search,
     spotify_album_tracks,
-    spotify_play_track
+    spotify_play_track,
+    genius_song_search
 )
 
 @tool
@@ -38,10 +39,47 @@ def spotify(query: str):
     agent = Agent(
         model=get_ollama_model(),
         tools=[
-                spotify_track_search,
-                spotify_album_search,
-                spotify_album_tracks,
-                spotify_play_track
+            spotify_track_search,
+            spotify_album_search,
+            spotify_album_tracks,
+            spotify_play_track
+        ],
+        system_prompt=system_prompt,
+        callback_handler=None
+    )
+    res = agent(query)
+    return str(res)
+
+@tool
+def lyrics(query: str):
+    """
+    This agent has access to the Genius song lyrics platform which can provide information about a song's lyrics.
+    
+    The agent has access to the following tools:
+
+    * genius_song_search: Searches for the lyrics of a particular song by a particular artist
+        * Example: 'What are the lyrics to <song title> by <song artist>'
+
+    The lyrics will be returned if successful, but None will be returned if nothing is found or 
+    if an error has occured in the search.
+
+    Args:
+        query (str): The request to be passed to the lyrics agent
+
+    Returns:
+        agent_response (str): The response from the lyrics agent
+    """
+    system_prompt = """
+        You are a specialized assistant that can provides information related to song lyrics.
+        You have access to tools which allow you to search for a song's lyrics using the Genius platform.
+        Make sure to return the desired song lyrics after searching for them.
+        If no lyrics are found or an error occurs, return None.
+    """
+
+    agent = Agent(
+        model=get_ollama_model(),
+        tools=[
+            genius_song_search
         ],
         system_prompt=system_prompt,
         callback_handler=None

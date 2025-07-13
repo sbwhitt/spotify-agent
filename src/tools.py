@@ -1,8 +1,10 @@
 import os
 import spotipy
+import lyricsgenius
 
-from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 from strands import tool
+from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
+from ddgs import DDGS
 
 def _init_spotipy(auth=False) -> spotipy.Spotify:
     if auth:
@@ -22,6 +24,11 @@ def _init_spotipy(auth=False) -> spotipy.Spotify:
                 client_secret=os.environ["SPOTIFY_CLIENT_SECRET"]
             )
         )
+
+def _init_genius() -> lyricsgenius.Genius:
+    return lyricsgenius.Genius(
+        access_token=os.environ["GENIUS_ACCESS_TOKEN"]
+    )
 
 @tool
 def spotify_track_search(query: str):
@@ -123,3 +130,38 @@ def spotify_play_track(track_uri: str) -> bool:
     except Exception as e:
         print(e)
         return False
+
+@tool
+def genius_song_search(title: str, artist=None) -> str:
+    """
+    Searches for the provided song title and artist using the Genius song lyrics platform.
+
+    Args:
+        song (str): The title of the song to search for
+        artist (str | None): The name of the song's artist (default None)
+
+    Returns:
+        lyrics (str | None): The song's lyrics if the search is successful, else None
+    """
+    try:
+        genius = _init_genius()
+        res = genius.search_song(title=title, artist=artist)
+        return res.lyrics
+    except:
+        return None
+
+@tool
+def web_search(query: str) -> list[dict]:
+    """
+    Searches the web for the provided query using the Duck Duck Go search engine.
+    Returns a list of the most relevant results.
+
+    Args:
+        query (str): The provided search query
+
+    Returns:
+        results (list): Most relevant search results in the format:
+        [{title: str, href: str, body: str}]
+    """
+    res = DDGS().text(query, num_results=5)
+    return res
